@@ -1,1 +1,207 @@
+//------------------------------------------------------------------------------------4--------------------------------------------------------------------------------------
+// Поганий приклад
+func prc(d []int) int {
+    s := 0
+    for _, v := range d {
+        s += v
+    }
+    return s
+}
 
+// Хороший приклад
+func CalculateTotalExpenses(expenses []int) int {
+    total := 0
+    for _, expense := range expenses {
+        total += expense
+    }
+    return total
+}
+
+
+//------------------------------------------------------------------------------------5--------------------------------------------------------------------------------------
+
+// GetUserByID повертає дані користувача за його ідентифікатором.
+func GetUserByID(id int) (*User, error) {
+    user, err := userRepository.FindByID(id)
+    if err != nil {
+        return nil, fmt.Errorf("не вдалося знайти користувача: %w", err)
+    }
+    return user, nil
+}
+
+
+//------------------------------------------------------------------------------------6--------------------------------------------------------------------------------------
+
+data, err := ioutil.ReadFile("config.json")
+if err != nil {
+    log.Fatalf("помилка читання конфігурації: %v", err)
+}
+
+
+
+//-------------------------------------------------------------------------------------7--------------------------------------------------------------------------------------
+
+// До форматування
+func calculate_total ( expenses []int ) int {
+    total:=0
+      for _,expense := range expenses {
+    total+=expense
+  }
+  return total }
+
+// Після форматування
+func calculateTotal(expenses []int) int {
+    total := 0
+    for _, expense := range expenses {
+        total += expense
+    }
+    return total
+}
+
+
+//------------------------------------------------------------------------------------8--------------------------------------------------------------------------------------
+
+type Order struct {
+    ID       int
+    UserID   int
+    Items    []string
+    Total    float64
+    IsPaid   bool
+}
+
+func ProcessOrder(order Order) Order {
+    order.IsPaid = true
+    order.Total *= 0.9 // Знижка 10%
+    return order
+}
+
+// Поганий приклад
+func main() {
+    order := Order{
+        ID:     1,
+        UserID: 123,
+        Items:  []string{"Item1", "Item2"},
+        Total:  100.0,
+    }
+    order = ProcessOrder(order)
+    fmt.Println(order)
+}
+
+// Хороший приклад
+func main() {
+    order := &Order{
+        ID:     1,
+        UserID: 123,
+        Items:  []string{"Item1", "Item2"},
+        Total:  100.0,
+    }
+    ProcessOrder(order)
+    fmt.Println(*order)
+}
+
+
+//------------------------------------------------------------------------------------9--------------------------------------------------------------------------------------
+
+// Інтерфейс для репозиторію користувачів
+type UserRepository interface {
+    FindByID(id int) (*User, error)
+    Save(user *User) error
+}
+
+// Використання інтерфейсу в сервісі
+func GetUserProfile(repo UserRepository, id int) (*UserProfile, error) {
+    user, err := repo.FindByID(id)
+    if err != nil {
+        return nil, fmt.Errorf("користувач не знайдений: %w", err)
+    }
+    return &UserProfile{
+        Name: user.Name,
+        Age:  user.Age,
+    }, nil
+}
+
+
+//------------------------------------------------------------------------------------10--------------------------------------------------------------------------------------
+
+func GetUserByID(ctx context.Context, id int) (*User, error) {
+    user, err := userRepository.FindByID(ctx, id)
+    if err != nil {
+        return nil, fmt.Errorf("не вдалося знайти користувача: %w", err)
+    }
+    return user, nil
+}
+
+func main() {
+    // Встановлюємо таймаут у 2 секунди
+    ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+    defer cancel()
+
+    user, err := GetUserByID(ctx, 123)
+    if err != nil {
+        log.Fatalf("Помилка: %v", err)
+    }
+    fmt.Println(user)
+}
+
+
+//------------------------------------------------------------------------------------11--------------------------------------------------------------------------------------
+
+func GetUserByID(ctx context.Context, id int) (*User, error) {
+    log.Println("Запит на отримання користувача з ID:", id)
+
+    user, err := userRepository.FindByID(ctx, id)
+    if err != nil {
+        log.Printf("Помилка при пошуку користувача з ID %d: %v", id, err)
+        return nil, fmt.Errorf("не вдалося знайти користувача: %w", err)
+    }
+
+    log.Printf("Користувача з ID %d успішно знайдено", id)
+    return user, nil
+}
+
+func main() {
+    ctx := context.Background()
+
+    log.Println("Початок виконання програми")
+    user, err := GetUserByID(ctx, 123)
+    if err != nil {
+        log.Fatalf("Критична помилка: %v", err)
+    }
+
+    log.Printf("Отримані дані користувача: %+v", user)
+}
+
+
+//------------------------------------------------------------------------------------12--------------------------------------------------------------------------------------
+
+// Функція для тестування
+func CalculateTotalExpenses(expenses []int) int {
+    total := 0
+    for _, expense := range expenses {
+        total += expense
+    }
+    return total
+}
+
+// Тест-функція
+func TestCalculateTotalExpenses(t *testing.T) {
+    tests := []struct {
+        name     string
+        input    []int
+        expected int
+    }{
+        {"Без витрат", []int{}, 0},
+        {"Один елемент", []int{100}, 100},
+        {"Декілька елементів", []int{50, 150, 200}, 400},
+        {"Негативні витрати", []int{-50, 100}, 50},
+    }
+
+    for _, tt := range tests {
+        t.Run(tt.name, func(t *testing.T) {
+            result := CalculateTotalExpenses(tt.input)
+            if result != tt.expected {
+                t.Errorf("Для тесту '%s': очікували %d, отримали %d", tt.name, tt.expected, result)
+            }
+        })
+    }
+}
