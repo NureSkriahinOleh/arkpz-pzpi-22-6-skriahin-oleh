@@ -1,0 +1,200 @@
+МІНІСТЕРСТВО ОСВІТИ ТА НАУКИ УКРАЇНИ
+ХАРКІВСЬКИЙ НАЦІОНАЛЬНИЙ УНІВЕРСИТЕТ РАДІОЕЛЕКТРОНІКИ
+
+
+
+Кафедра програмної інженерії
+
+
+ЗВІТ
+З дисципліни «Аналіз та рефакторинг коду»
+З практичного заняття №1
+На тему: «Правила оформлення програмного коду»
+
+
+
+Виконав ст. гр. ПЗПІ-22-6
+Скрягін О.С. 
+
+
+Перевірив:
+доц. Сокорчук І.П.
+
+
+Харків 2024	
+
+
+1.1	Тема роботи:
+Правила оформлення програмного коду
+1.2 Мета роботи:
+Ознайомитись з основними рекомендаціями щодо написання чистого, ефективного та підтримуваного коду для різних мов програмування, а також навчитися аналізувати та рефакторити код для покращення його якості.
+1.3 Хід роботи
+1)  Було обрано мову програмування Go для аналізу і рефакторингу коду з метою покращення його якості.
+2) Проведено дослідження основних правил та рекомендацій щодо написання якісного коду на Go, таких як:
+
+•	Використання осмислених назв змінних, функцій та структур.
+1  func prc(d []int) int {
+2      s := 0
+3      for _, v := range d {
+4          s += v
+5      }
+6      return s
+7  }
+
+8  // Хороший приклад
+9  func CalculateTotalExpenses(expenses []int) int {
+10     total := 0
+11     for _, expense := range expenses {
+12         total += expense
+13     }
+14     return total
+15 }
+
+•	Використання коментарів
+1  // GetUserByID повертає дані користувача за його ідентифікатором.
+2  func GetUserByID(id int) (*User, error) {
+3      user, err := userRepository.FindByID(id)
+4      if err != nil {
+5          return nil, fmt.Errorf("не вдалося знайти користувача: %w", err)
+6      }
+7      return user, nil
+8  }
+•	Оптимальне використання обробки помилок через error.
+1  data, err := ioutil.ReadFile("config.json")
+2  if err != nil {
+3      log.Fatalf("помилка читання конфігурації: %v", err)
+4  }
+
+•	Дотримання стилю коду з використанням gofmt.
+1  // До форматування
+2  func calculate_total ( expenses []int ) int {
+3      total:=0
+4        for _,expense := range expenses {
+5      total+=expense
+6    }
+7    return total }
+
+8  // Після форматування
+9  func calculateTotal(expenses []int) int {
+10     total := 0
+11     for _, expense := range expenses {
+12         total += expense
+13     }
+14     return total
+15 }
+
+•	Використання структур і вказівників
+1  type Order struct {
+2      ID       int
+3      UserID   int
+4      Items    []string
+5      Total    float64
+6      IsPaid   bool
+7  }
+
+8  func ProcessOrder(order Order) Order {
+9      order.IsPaid = true
+10     order.Total *= 0.9 // Знижка 10%
+11     return order
+12 }
+
+13 // Поганий приклад
+14 func main() {
+15     order := Order{
+16         ID:     1,
+17         UserID: 123,
+18         Items:  []string{"Item1", "Item2"},
+19         Total:  100.0,
+20     }
+21     order = ProcessOrder(order)
+22     fmt.Println(order)
+23 }
+
+24 // Хороший приклад
+25 func main() {
+26     order := &Order{
+27         ID:     1,
+28         UserID: 123,
+29         Items:  []string{"Item1", "Item2"},
+30         Total:  100.0,
+31     }
+32     ProcessOrder(order)
+33     fmt.Println(*order)
+34 }
+
+•	Застосування інтерфейсів для зниження зв'язності компонентів.
+1  // Інтерфейс для репозиторію користувачів
+2  type UserRepository interface {
+3      FindByID(id int) (*User, error)
+4      Save(user *User) error
+5  }
+
+6  // Використання інтерфейсу в сервісі
+7  func GetUserProfile(repo UserRepository, id int) (*UserProfile, error) {
+8      user, err := repo.FindByID(id)
+9      if err != nil {
+10         return nil, fmt.Errorf("користувач не знайдений: %w", err)
+11     }
+12     return &UserProfile{
+13         Name: user.Name,
+14         Age:  user.Age,
+15     }, nil
+16 }
+
+•	Використання контексту (context.Context) для керування запитами.
+1  func GetUserByID(ctx context.Context, id int) (*User, error) {
+2      user, err := userRepository.FindByID(ctx, id)
+3      if err != nil {
+4          return nil, fmt.Errorf("не вдалося знайти користувача: %w", err)
+5      }
+6      return user, nil
+7  }
+8  func main() {
+9      // Встановлюємо таймаут у 2 секунди
+10     ctx, cancel := context.WithTimeout( context.Background(), 2*time.Second)
+11     defer cancel()
+12     user, err := GetUserByID(ctx, 123)
+13     if err != nil {
+14         log.Fatalf("Помилка: %v", err)
+15     }
+16     fmt.Println(user)
+17 }
+
+•	Письмо модульних тестів для забезпечення коректності коду.
+1  // Функція для тестування
+2  func CalculateTotalExpenses(expenses []int) int {
+3      total := 0
+4      for _, expense := range expenses {
+5          total += expense
+6      }
+7      return total
+8  }
+
+9  // Тест-функція
+10 func TestCalculateTotalExpenses(t *testing.T) {
+11     tests := []struct {
+12         name     string
+13         input    []int
+14         expected int
+15     }{
+16         {"Без витрат", []int{}, 0},
+17         {"Один елемент", []int{100}, 100},
+18         {"Декілька елементів", []int{50, 150, 200}, 400},
+19         {"Негативні витрати", []int{-50, 100}, 50},
+20     }
+
+21     for _, tt := range tests {
+22         t.Run(tt.name, func(t *testing.T) {
+23             result := CalculateTotalExpenses(tt.input)
+24             if result != tt.expected {
+25                 t.Errorf("Для тесту '%s': очікували %d, отримали %d", tt.name, tt.expected, result)
+26             }
+27         })
+28     }
+29 }
+3) Підготовлено презентацію, яка містить аналіз та демонстрацію прикладів коду, а також пояснення кожної рекомендації.
+	1.5 Висновок
+	Під час виконання практичної роботи було вивчено основні рекомендації щодо написання чистого та підтримуваного коду на мові програмування Go. Навчився аналізувати та рефакторити код, застосовувати принципи DRY, ефективно використовувати інтерфейси та контексти, а також писати модульні тести. Дотримання цих рекомендацій значно покращує якість та підтримку коду, знижуючи ризики виникнення помилок у майбутньому.
+
+	Посилання на GitHub: https://github.com/NureSkriahinOleh/arkpz-pzpi-22-6-skriahin-oleh
+	Посилання на YouTube відео з презентацією:
