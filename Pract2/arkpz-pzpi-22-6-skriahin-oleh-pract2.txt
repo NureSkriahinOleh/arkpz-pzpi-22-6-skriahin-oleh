@@ -1,1 +1,214 @@
+МІНІСТЕРСТВО ОСВІТИ ТА НАУКИ УКРАЇНИ
+ХАРКІВСЬКИЙ НАЦІОНАЛЬНИЙ УНІВЕРСИТЕТ РАДІОЕЛЕКТРОНІКИ
 
+
+
+Кафедра програмної інженерії
+
+
+ЗВІТ
+З дисципліни «Аналіз та рефакторинг коду»
+З практичного заняття №2
+На тему: «Методи рефакторингу коду програмного забезпечення»
+
+
+
+Виконав							
+ст. гр. ПЗПІ-22-6						
+Скрягін О.С.
+
+Перевірив:
+доц. Сокорчук І.П.
+
+
+Харків 2024	
+
+1.	Практичне заняття №2
+1.1	Тема роботи:
+Методи рефакторингу коду програмного забезпечення .
+1.2 Мета роботи:
+Опанувати основні методи рефакторингу коду на основі реальних прикладів із власних програмних проєктів. Я повинен навчитися ідентифікувати проблеми в коді та використовувати відповідні методи рефакторингу для покращення його якості. Це допоможе мені розвинути практичні навички, які важливі для створення більш структурованого, зрозумілого та підтримуваного коду в майбутніх проєктах.
+1.3 Хід роботи
+1)  Було обрано мову програмування Python та фреймворк Django для аналізу та рефакторингу коду з метою покращення його якості.
+2) Виконано рефакторинг існуючого коду у відповідності до таких методів:
+a)	Encapsulate Field (ДОДАТОК Б):
+•	Приховування полів класу через зміну доступу до атрибутів об'єкта (переведення їх у приватні).
+•	Додано методи get_status і set_status для безпечного доступу до значень та їх модифікації.
+b)	Pull Up Method (ДОДАТОК В):
+•	Уніфікація логіки збереження даних у базу через створення базового класу Sensor.
+•	Наслідування специфічних сенсорів (SmokeSensor і TemperatureSensor) від базового класу.
+c)	Replace Array with Object (ДОДАТОК Г):
+•	Заміна масиву даних повідомлення на окремий клас Notification.
+•	Забезпечено більш зрозумілу структуру передачі даних у вигляді об'єкта.
+3) Підготовлено презентацію, яка містить:
+•	Демонстрацію кожного методу рефакторингу на реальних прикладах.
+•	Висновки щодо переваг застосованих методів.
+	1.5 Висновок
+	У ході роботи було вивчено та реалізовано три основні методи рефакторингу: Encapsulate Field, Pull Up Method та Replace Array with Object. Завдяки їх використанню вдалося покращити структуру коду, зменшити дублювання та підвищити його читабельність. Рефакторинг зробив код більш безпечним, зрозумілим і легшим для підтримки, що позитивно впливає на загальну якість програмного забезпечення. Отриманий досвід сприятиме покращенню підходів до розробки в майбутніх проєктах.
+
+	Посилання на GitHub: https://github.com/NureSkriahinOleh/arkpz-pzpi-22-6-skriahin-oleh
+	Посилання на YouTube відео з презентацією: 
+https://youtu.be/b6rnxRODngM
+
+
+
+
+
+ДОДАТОК А 
+Слайди презентації:
+  
+Рисунок А.1 – Перший слайд презентації
+
+ 
+Рисунок А.2 – Другий слайд презентації
+ 
+ 
+Рисунок А.3 – Третій слайд презентації
+ 
+ 
+Рисунок А.4 – Четвертий слайд презентації
+ 
+ 
+Рисунок А.5 – П’ятий слайд презентації
+ 
+ 
+Рисунок А.6 – Шостий слайд презентації
+ 
+ 
+Рисунок А.7 – Сьомий слайд презентації
+ 
+ 
+Рисунок А.8 – Восьмий слайд презентації
+
+  
+Рисунок А.9 – Дев’ятий слайд презентації
+ 
+ 
+Рисунок А.10 – Десятий слайд презентації
+
+
+
+ДОДАТОК Б 
+1. #До рефакторингу:
+2. class Camera:
+3.     def __init__(self, camera_id, status):
+4.         self.camera_id = camera_id
+5.         self.camera_status = status  # Поле доступне напряму
+6. 
+7. camera = Camera(camera_id=101, status="active")
+8. camera.camera_status = "inactive"  # Пряме змінення
+9. print(camera.camera_status)  # inactive
+10. 
+11. #Після рефакторингу:
+12. class Camera:
+13.     def __init__(self, camera_id, status):
+14.         self.camera_id = camera_id
+15.         self.__camera_status = status  # Поле стало приватним
+16. 
+17.     def get_status(self):
+18.         return self.__camera_status
+19. 
+20.     def set_status(self, new_status):
+21.         if new_status in ["active", "inactive", "error"]:
+22.             self.__camera_status = new_status
+23.         else:
+24.             raise ValueError("Invalid status value")
+
+ДОДАТОК В
+27. #До рефакторингу:
+28. from django.db import models
+29. 
+30. class SmokeSensor:
+31.     def save_to_db(self, data):
+32.         # Логіка збереження у базу даних 
+33.         sensor_data = SensorData(sensor_type="smoke", value=data["level"])
+34.         sensor_data.save()
+35.         print(f"Smoke sensor data saved: {sensor_data}")
+36. 
+37. class TemperatureSensor:
+38.     def save_to_db(self, data):
+39.         # Р›РѕРіС–РєР° Р·Р±РµСЂРµР¶РµРЅРЅСЏ Сѓ Р±Р°Р·Сѓ РґР°РЅРёС…
+40.         sensor_data = SensorData(sensor_type="temperature", value=data["temperature"])
+41.         sensor_data.save()
+42.         print(f"Temperature sensor data saved: {sensor_data}")
+43. 
+44. class SensorData(models.Model):
+45.     sensor_type = models.CharField(max_length=50)
+46.     value = models.FloatField()
+47.     timestamp = models.DateTimeField(auto_now_add=True)
+48. 
+49. # Використання класів
+50. smoke_sensor = SmokeSensor()
+51. smoke_sensor.save_to_db({"level": 80})
+52. 
+53. temp_sensor = TemperatureSensor()
+54. temp_sensor.save_to_db({"temperature": 25})
+55. 
+56. #Після рефакторингу:
+57. from django.db import models
+58. 
+59. class Sensor:
+60.     def save_to_db(self, sensor_type, data):
+61.         # Спільна логіка збереження у базу даних
+62.         sensor_data = SensorData(sensor_type=sensor_type, value=data)
+63.         sensor_data.save()
+64.         print(f"{sensor_type.capitalize()} sensor data saved: {sensor_data}")
+65. 
+66. class SmokeSensor(Sensor):
+67.     def save_to_db(self, data):
+68.         super().save_to_db("smoke", data["level"])
+69. 
+70. class TemperatureSensor(Sensor):
+71.     def save_to_db(self, data):
+72.         super().save_to_db("temperature", data["temperature"])
+73. 
+74. class SensorData(models.Model):
+75.     sensor_type = models.CharField(max_length=50)
+76.     value = models.FloatField()
+77.     timestamp = models.DateTimeField(auto_now_add=True)
+78. 
+79. # Використання класів
+80. #####################
+
+
+
+
+
+
+ДОДАТОК Г
+83. #До рефакторингу:
+84. class NotificationSender:
+85.     def send_notification(self, notification):
+86.         # Дані зберігаються у вигляді масиву
+87.         message = notification[0]
+88.         priority = notification[1]
+89.         recipient = notification[2]
+90. 
+91.         # Логіка надсилання 
+92.         print(f"Sending '{message}' with priority '{priority}' to '{recipient}'")
+93. 
+94. # Використання класу
+95. notifier = NotificationSender()
+96. notification = ["Fire detected", "high", "security_team@example.com"]
+97. notifier.send_notification(notification)
+98. 
+99. #Після рефакторингу:
+100. class Notification:
+101.     def __init__(self, message, priority, recipient):
+102.         self.message = message
+103.         self.priority = priority
+104.         self.recipient = recipient
+105. 
+106. 
+107. class NotificationSender:
+108.     def send_notification(self, notification):
+109.         # Дані передаються у вигляді об'єкта
+110.         print(
+111.             f"Sending '{notification.message}' with priority '{notification.priority}' to '{notification.recipient}'"
+112.         )
+113. 
+114. 
+115. # Використання класу
+116. notifier = NotificationSender()
+117. notification = Notification("Fire detected", "high", "security_team@example.com")
+118. notifier.send_notification(notification)
