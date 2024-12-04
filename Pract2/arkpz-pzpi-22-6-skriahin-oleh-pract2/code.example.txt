@@ -1,1 +1,119 @@
+#----------------------------1----------------------------
+#До рефакторингу:
+class Camera:
+    def __init__(self, camera_id, status):
+        self.camera_id = camera_id
+        self.camera_status = status  # Поле доступне напряму
 
+camera = Camera(camera_id=101, status="active")
+camera.camera_status = "inactive"  # Пряме змінення
+print(camera.camera_status)  # inactive
+
+#Після рефакторингу:
+class Camera:
+    def __init__(self, camera_id, status):
+        self.camera_id = camera_id
+        self.__camera_status = status  # Поле стало приватним
+
+    def get_status(self):
+        return self.__camera_status
+
+    def set_status(self, new_status):
+        if new_status in ["active", "inactive", "error"]:
+            self.__camera_status = new_status
+        else:
+            raise ValueError("Invalid status value")
+
+#----------------------------2----------------------------
+#До рефакторингу:
+from django.db import models
+
+class SmokeSensor:
+    def save_to_db(self, data):
+        # Логіка збереження у базу даних
+        sensor_data = SensorData(sensor_type="smoke", value=data["level"])
+        sensor_data.save()
+        print(f"Smoke sensor data saved: {sensor_data}")
+
+class TemperatureSensor:
+    def save_to_db(self, data):
+        # Логіка збереження у базу даних
+        sensor_data = SensorData(sensor_type="temperature", value=data["temperature"])
+        sensor_data.save()
+        print(f"Temperature sensor data saved: {sensor_data}")
+
+class SensorData(models.Model):
+    sensor_type = models.CharField(max_length=50)
+    value = models.FloatField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+# Використання класів
+smoke_sensor = SmokeSensor()
+smoke_sensor.save_to_db({"level": 80})
+
+temp_sensor = TemperatureSensor()
+temp_sensor.save_to_db({"temperature": 25})
+
+#Після рефакторингу:
+from django.db import models
+
+class Sensor:
+    def save_to_db(self, sensor_type, data):
+        # Спільна логіка збереження у базу даних
+        sensor_data = SensorData(sensor_type=sensor_type, value=data)
+        sensor_data.save()
+        print(f"{sensor_type.capitalize()} sensor data saved: {sensor_data}")
+
+class SmokeSensor(Sensor):
+    def save_to_db(self, data):
+        super().save_to_db("smoke", data["level"])
+
+class TemperatureSensor(Sensor):
+    def save_to_db(self, data):
+        super().save_to_db("temperature", data["temperature"])
+
+class SensorData(models.Model):
+    sensor_type = models.CharField(max_length=50)
+    value = models.FloatField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+# Використання класів
+#####################
+
+#----------------------------3----------------------------
+#До рефакторингу:
+class NotificationSender:
+    def send_notification(self, notification):
+        # Дані зберігаються у вигляді масиву
+        message = notification[0]
+        priority = notification[1]
+        recipient = notification[2]
+
+        # Логіка надсилання
+        print(f"Sending '{message}' with priority '{priority}' to '{recipient}'")
+
+# Використання класу
+notifier = NotificationSender()
+notification = ["Fire detected", "high", "security_team@example.com"]
+notifier.send_notification(notification)
+
+#Після рефакторингу:
+class Notification:
+    def __init__(self, message, priority, recipient):
+        self.message = message
+        self.priority = priority
+        self.recipient = recipient
+
+
+class NotificationSender:
+    def send_notification(self, notification):
+        # Дані передаються у вигляді об'єкта
+        print(
+            f"Sending '{notification.message}' with priority '{notification.priority}' to '{notification.recipient}'"
+        )
+
+
+# Використання класу
+notifier = NotificationSender()
+notification = Notification("Fire detected", "high", "security_team@example.com")
+notifier.send_notification(notification)
