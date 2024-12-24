@@ -1,1 +1,282 @@
+МІНІСТЕРСТВО ОСВІТИ ТА НАУКИ УКРАЇНИ
+ХАРКІВСЬКИЙ НАЦІОНАЛЬНИЙ УНІВЕРСИТЕТ РАДІОЕЛЕКТРОНІКИ
+
+
+
+Кафедра програмної інженерії
+
+
+ЗВІТ
+З дисципліни «Аналіз та рефакторинг коду»
+З лабораторної роботи №3
+На тему: «Розробка бізнес-логіки та функцій адміністрування серверної частини програмної системи»
+
+
+
+Виконав ст. гр. ПЗПІ-22-6 
+Скрягін О.С.
+
+Перевірив:
+доц. Сокорчук І.П.
+
+
+
+Харків 2024
+
+1. Розробка бізнес-логіки та функцій адміністрування серверної частини програмної системи.
+1.1 Мета роботи
+Розробити бізнес-логику та функції адміністрування серверної частини  програмної системи.
+	Хід роботи
+	Розробити бізнес логіку серверної частини програмної системи.
+Математична бізнес-логіка для обчислення індексу пожежної небезпеки (ІПН) на основі даних сенсорів у заданій локації:
+	Система отримує поточне значення, яке надходить від сенсора, наприклад, газового аналізатора, а також визначає локацію, у якій розташовано сенсор.
+	У цій локації система знаходить пов’язані сенсори, що відповідають за вимірювання температури, вологості та газового складу повітря.
+	Для кожного з цих сенсорів система визначає останні виміри з їхніх логів.
+	Обчислюється індекс пожежної небезпеки (ІПН) за формулою: 
+ІПН= (T∙G)/(H+1)
+де T — температура, G — рівень газів, H — вологість.
+	Якщо обчислене значення ІПН перевищує встановлений поріг, система позначає лог як потенційно небезпечний для подальшої обробки.
+Бізнес-логіка для створення записів логів та перевірки перевищення порогових значень:
+	При отриманні нового значення від сенсора система створює новий запис у базі даних з вказаними параметрами: значення, час створення та відмітка про можливе перевищення порогового значення.
+	Система перевіряє, чи перевищує отримане значення встановлений поріг для цього типу сенсора, і якщо так, встановлює відповідний статус для лога.
+Бізнес-логіка для відправки сповіщень адміністраторам у разі підозри на пожежу:
+	У разі перевищення порогового значення ІПН система автоматично визначає всіх користувачів із роллю “адмін”.
+	Для цих користувачів система формує електронне повідомлення, яке включає детальну інформацію про потенційно небезпечну ситуацію:
+	Локація, де виявлено перевищення.
+	Поточні значення температури, вологості та рівня газів.
+	Обчислене значення ІПН.
+	Повідомлення надсилається на зареєстровані електронні адреси адміністраторів, що дозволяє своєчасно реагувати на потенційну загрозу.
+Ця бізнес-логіка забезпечує комплексний підхід до моніторингу стану середовища та швидкого реагування у випадку потенційної пожежної небезпеки, гарантуючи надійність і ефективність системи.
+
+	Розробити функції адміністрування серверної частини програмної системи.
+Функції адміністрування серверної частини системи
+Система забезпечує управління пожежною безпекою в торгових центрах, здійснюючи збір, обробку та збереження даних зі сканерів і камер. Для забезпечення стабільної роботи системи передбачено два рівні адміністративних функцій: Адміністратор системи та Адміністратор бази даних.
+Адміністратор системи відповідає за управління даними, що зберігаються у базі даних, забезпечуючи точність та актуальність інформації. Його функції включають:
+	Перегляд, редагування та видалення облікових записів користувачів.
+	Додавання, редагування та видалення сканерів і камер.
+	Управління логами системи: перегляд, видалення та архівування.
+	Надання доступу до певних функцій системи користувачам відповідно до їх ролі.
+	Взаємодія з системою сповіщень для моніторингу аварійних ситуацій та їх аналізу.
+Адміністратор бази даних забезпечує технічну підтримку та оптимальну продуктивність бази даних. Його завдання включають:
+	Створення резервних копій бази даних для запобігання втраті даних.
+	Відновлення бази даних з резервних копій у разі аварійної ситуації.
+	Виконання та контроль міграцій для оновлення структури бази даних.
+	Оптимізація продуктивності бази даних для швидкого доступу до даних.
+	Перевірка коректності роботи з базою даних після внесення змін.
+Додаткові функції адміністраторів:
+	Моніторинг стану системи в реальному часі. Адміністратор системи має можливість переглядати активність сканерів і камер, виявляти аномалії або збої у роботі обладнання.
+	Автоматизація регулярних резервних копій. Адміністратор бази даних може налаштовувати автоматичне створення резервних копій за розкладом.
+	Аналітика та звітність. Система підтримує формування звітів на основі отриманих даних (наприклад, частота пожежних тривог, стан обладнання тощо).
+Користувачі мають доступ до своїх даних і можуть виконувати такі операції:
+	Перегляд історії даних зі сканерів і камер.
+	Отримання сповіщень про небезпечні ситуації, виявлені системою.
+	Завантаження звітів для подальшого аналізу.
+	Редагування персональної інформації облікового запису.
+Ця структура дозволяє ефективно управляти системою, забезпечуючи високий рівень безпеки, точності та зручності для всіх користувачів і адміністраторів.
+
+	Створити UML-діаграми для серверної частини.
+
+ Рисунок 1.2.3.1 – UML-діаграма діяльності для серверної частини
+
+
+ 
+Рисунок 1.2.3.2 – UML-діаграма взаємодії для серверної частини (admin)
+ 
+Рисунок 1.2.3.3 – UML-діаграма взаємодії для серверної частини (visitor)
+
+
+
+	Створити програмну реалізацію бізнес-логіки та функцій адміністрування серверної частини.
+Приклад реалізації бізнес-логіки виявлення загрози пожежі та надсилання листів про небезпеку (див. ДОДАТОК А).
+Реалізація функціоналу для адміністрування веб-застосунком (див. ДОДАТОК Б)
+1.3 Висновок
+Під час виконання роботи було розроблено бізнес-логіку та функції адміністрування серверної частини системи для моніторингу пожежної безпеки в торгових центрах, створено UML-діаграми та програмну реалізацію основних функцій системи, включаючи управління користувачами, сенсорами, камерами, логами, міграціями, резервним копіюванням та відновленням бази даних.
+Посилання на відеозапис: https://youtu.be/N57qYV8UjU0
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ДОДАТОК А
+(бізнес-логіка)
+1    class CreateSensorLogAPIView(APIView):
+2        permission_classes = [AllowAny]
+3    
+4        @swagger_auto_schema(
+5            operation_description="РЎРѕР·РґР°С‚СЊ РЅРѕРІС‹Р№ Р»РѕРі РґР»СЏ СЃРµРЅСЃРѕСЂР°",
+6            request_body=CreateSensorLogSerializer,
+7            responses={
+8                201: openapi.Response(description="РЈСЃРїС–С€РЅРѕ СЃС‚РІРѕСЂРµРЅРѕ Р»РѕРі"),
+9                400: openapi.Response(description="РќРµРєРѕСЂРµРєС‚РЅС– РґР°РЅС–"),
+10                404: openapi.Response(description="РЎРµРЅСЃРѕСЂ РЅРµ Р·РЅР°Р№РґРµРЅРѕ"),
+11            }
+12        )
+13        def post(self, request, *args, **kwargs):
+14            sensor_id = request.data.get('sensor_id')
+15            value = request.data.get('value')
+16    
+17            if not sensor_id or value is None:
+18                return Response({"error": "sensor_id and value are required"}, status=status.HTTP_400_BAD_REQUEST)
+19    
+20            # Get the sensor instance
+21            sensor = get_object_or_404(Sensor, id=sensor_id)
+22    
+23            # Create a new log for the sensor
+24            log = SensorLog.objects.create(sensor=sensor, value=value)
+25            log.check_threshold()
+26    
+27            # Get other sensors in the same location
+28            location_sensors = Sensor.objects.filter(location=sensor.location)
+29    
+30            # Fetch relevant sensor logs (humidity, temperature, gas)
+31            temperature_log = location_sensors.filter(type='temperature').first()
+32            humidity_log = location_sensors.filter(type='humidity').first()
+33            gas_log = location_sensors.filter(type='gas').first()
+34    
+35            # Retrieve the latest logs for each type
+36            latest_temperature_value = SensorLog.objects.filter(sensor=temperature_log).order_by('-timestamp').first().value if temperature_log else None
+37            latest_humidity_value = SensorLog.objects.filter(sensor=humidity_log).order_by('-timestamp').first().value if humidity_log else None
+38            latest_gas_value = SensorLog.objects.filter(sensor=gas_log).order_by('-timestamp').first().value if gas_log else None
+39    
+40            if latest_temperature_value is not None and latest_humidity_value is not None and latest_gas_value is not None:
+41                # Calculate Fire Danger Index (FDI)
+42                try:
+43                    fdi = (latest_temperature_value * latest_gas_value) / (latest_humidity_value + 1)
+44                    log.fdi = fdi
+45                    log.save()
+46    
+47                    FDI_THRESHOLD = 50
+48                    if fdi > FDI_THRESHOLD:
+49                        admins = User.objects.filter(role='admin')  # Get all admin users
+50                        admin_emails = admins.values_list('email', flat=True)
+51    
+52                        # Send email notification
+53                        if admin_emails:
+54                            send_mail(
+55                                subject="Fire Danger Alert",
+56                                message=f"""
+57                                    Fire danger detected in location: {sensor.location}.
+58                                    Details:
+59                                    - Temperature: {latest_temperature_value}
+60                                    - Humidity: {latest_humidity_value}
+61                                    - Gas Concentration: {latest_gas_value}
+62                                    - Fire Danger Index (FDI): {fdi}
+63                                """,
+64                                from_email="smartshield1@zohomail.eu",
+65                                recipient_list=admin_emails,
+66                            )
+67                            
+68                    return Response({
+69                        "message": "Sensor log created successfully",
+70                        "log": {
+71                            "id": log.id,
+72                            "sensor": sensor.id,
+73                            "value": log.value,
+74                            "exceeded_threshold": log.exceeded_threshold,
+75                            "fdi": fdi,
+76                            "temperature": latest_temperature_value,
+77                            "gas": latest_gas_value,
+78                            "humidity": latest_humidity_value,
+79                        }
+80                    }, status=status.HTTP_201_CREATED)
+81    
+82                except Exception as e:
+83                    return Response({"error": f"An error occurred while calculating FDI: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+84    
+85            return Response({"message": "Log created successfully but FDI could not be calculated due to missing data"}, status=status.HTTP_201_CREATED)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ДОДАТОК Б
+(адміністрування)
+1    class IsAdminUser(BasePermission):
+2        def has_permission(self, request, view):
+3            return request.user.is_authenticated and request.user.role == 'admin'
+4    
+5    class MakeMigrationsView(APIView):
+6        permission_classes = [IsAuthenticated, IsAdminUser]
+7    
+8        def post(self, request):
+9            try:
+10                call_command('makemigrations')
+11                return Response({"message": "Migrations created successfully."}, status=200)
+12            except Exception as e:
+13                return Response({"error": str(e)}, status=500)
+14    
+15    class MigrateView(APIView):
+16        permission_classes = [IsAuthenticated, IsAdminUser]
+17    
+18        def post(self, request):
+19            try:
+20                call_command('migrate')
+21                return Response({"message": "Migrations applied successfully."}, status=200)
+22            except Exception as e:
+23                return Response({"error": str(e)}, status=500)
+24    
+25    
+26    class BackupDatabaseView(APIView):
+27        permission_classes = [IsAuthenticated, IsAdminUser]
+28    
+29        def post(self, request):
+30            backup_file = os.path.join(settings.BASE_DIR, 'backup.sql')
+31            try:
+32                subprocess.run(
+33                    ['pg_dump', '-h', 'localhost', '-U', settings.DATABASES['default']['USER'],
+34                     '-d', settings.DATABASES['default']['NAME'], '-f', backup_file],
+35                    check=True
+36                )
+37                return Response({"message": "Backup created successfully.", "file": backup_file}, status=200)
+38            except Exception as e:
+39                return Response({"error": str(e)}, status=500)
+40    
+41    
+42    class RestoreDatabaseView(APIView):
+43        permission_classes = [IsAuthenticated, IsAdminUser]
+44    
+45        def post(self, request):
+46            backup_file =  os.path.join(settings.BASE_DIR, 'backup.sql')
+47            if not backup_file or not os.path.exists(backup_file):
+48                return Response({"error": "Backup file not found."}, status=400)
+49            try:
+50                subprocess.run(
+51                    ['psql', '-h', 'localhost', '-U', settings.DATABASES['default']['USER'],
+52                     '-d', settings.DATABASES['default']['NAME'], '-f', backup_file],
+53                    check=True
+54                )
+55                return Response({"message": "Database restored successfully."}, status=200)
+56            except Exception as e:
+57                return Response({"error": str(e)}, status=500)
+58    
 
